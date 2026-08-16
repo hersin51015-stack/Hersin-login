@@ -3,6 +3,7 @@ package com.example.ui
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -34,19 +35,21 @@ import com.example.R
 @Composable
 fun HornedLogo(
     modifier: Modifier = Modifier,
-    size: Dp = 130.dp
+    size: Dp = 150.dp
 ) {
     Box(
         modifier = modifier
-            .height(size)
-            .size(width = size * 1.77f, height = size),
+            .fillMaxWidth()
+            .height(size),
         contentAlignment = Alignment.Center
     ) {
         Image(
             painter = painterResource(id = R.drawable.ic_horned_h_logo),
-            contentDescription = "Horned H Logo",
+            contentDescription = "Horned H Neon Logo",
             contentScale = ContentScale.Fit,
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier
+                .fillMaxHeight()
+                .fillMaxWidth(0.9f)
         )
     }
 }
