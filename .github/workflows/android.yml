@@ -35,11 +35,11 @@ jobs:
         with:
           gradle-version: '9.3.1'
 
-      - name: Build APK with Gradle
-        run: gradle assembleDebug --no-daemon
+      - name: Build Small APK with Gradle
+        run: gradle assembleRelease --no-daemon
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: LoginApp-APK
-          path: app/build/outputs/apk/debug/app-debug.apk
+          path: app/build/outputs/apk/release/app-release.apk
