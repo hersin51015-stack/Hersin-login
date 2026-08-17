@@ -63,6 +63,8 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.platform.LocalContext
+import com.example.auth.GoogleAuthManager
 import com.example.model.AuthStatus
 import com.example.model.UserAccount
 import kotlinx.coroutines.launch
@@ -74,14 +76,19 @@ fun LoginScreen(
     authStatus: AuthStatus,
     onLoginAttempt: (username: String, password: String) -> Unit,
     onOpenCreateAccount: () -> Unit,
+    onGoogleSignIn: (UserAccount) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
+    val googleAuthManager = remember(context) { GoogleAuthManager(context) }
+
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
+    var googleSigningIn by remember { mutableStateOf(false) }
 
     val shakeOffset = remember { Animatable(0f) }
-    val coroutineScope = rememberCoroutineScope()
 
     fun triggerShake() {
         coroutineScope.launch {
@@ -417,6 +424,55 @@ fun LoginScreen(
                                         fontWeight = FontWeight.Bold
                                     )
                                 }
+                            }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // Direct Google Sign In Button
+                    Surface(
+                        modifier = Modifier
+                            .fillMaxWidth(0.92f)
+                            .height(46.dp)
+                            .clip(RoundedCornerShape(0.dp))
+                            .clickable {
+                                coroutineScope.launch {
+                                    googleSigningIn = true
+                                    googleAuthManager.signInWithGoogle(
+                                        onSuccess = { account ->
+                                            googleSigningIn = false
+                                            onGoogleSignIn(account)
+                                        },
+                                        onError = { error ->
+                                            googleSigningIn = false
+                                            // Provide fallback quick sign in dialog if credentials dialog can't show
+                                            onOpenCreateAccount()
+                                        }
+                                    )
+                                }
+                            }
+                            .testTag("google_login_button"),
+                        shape = RoundedCornerShape(0.dp),
+                        color = Color(0xFF1E293B),
+                        border = BorderStroke(1.dp, Color(0xFF475569))
+                    ) {
+                        Box(
+                            contentAlignment = Alignment.Center,
+                            modifier = Modifier.fillMaxSize()
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.Center
+                            ) {
+                                GoogleIconGraphic()
+                                Spacer(modifier = Modifier.width(10.dp))
+                                Text(
+                                    text = if (googleSigningIn) "Connecting to Google..." else "Sign in with Google",
+                                    color = Color.White,
+                                    fontSize = 15.sp,
+                                    fontWeight = FontWeight.SemiBold
+                                )
                             }
                         }
                     }

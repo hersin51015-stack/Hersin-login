@@ -52,7 +52,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
+import androidx.compose.runtime.rememberCoroutineScope
+import com.example.auth.GoogleAuthManager
+import kotlinx.coroutines.launch
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -72,6 +76,11 @@ fun CreateAccountDialog(
     onDismiss: () -> Unit,
     onAccountCreated: (UserAccount) -> Unit
 ) {
+    val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
+    val googleAuthManager = remember(context) { GoogleAuthManager(context) }
+    var isSigningInGoogle by remember { mutableStateOf(false) }
+
     var isGoogleFlow by remember { mutableStateOf(false) }
     var selectedGoogleAccount by remember { mutableStateOf(defaultGoogleEmail) }
     var customGoogleEmail by remember { mutableStateOf("") }
@@ -151,15 +160,28 @@ fun CreateAccountDialog(
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(8.dp))
                         .clickable {
-                            val account = UserAccount(
-                                username = defaultGoogleEmail.substringBefore("@"),
-                                password = "google_authenticated",
-                                email = defaultGoogleEmail,
-                                displayName = defaultGoogleEmail.substringBefore("@").replaceFirstChar { it.uppercase() },
-                                isGoogleUser = true,
-                                avatarEmoji = "🌐"
-                            )
-                            onAccountCreated(account)
+                            coroutineScope.launch {
+                                isSigningInGoogle = true
+                                googleAuthManager.signInWithGoogle(
+                                    onSuccess = { account ->
+                                        isSigningInGoogle = false
+                                        onAccountCreated(account)
+                                    },
+                                    onError = { err ->
+                                        isSigningInGoogle = false
+                                        // Fallback to quick connect user if Credential Manager doesn't find accounts
+                                        val account = UserAccount(
+                                            username = defaultGoogleEmail.substringBefore("@"),
+                                            password = "google_authenticated",
+                                            email = defaultGoogleEmail,
+                                            displayName = defaultGoogleEmail.substringBefore("@").replaceFirstChar { it.uppercase() },
+                                            isGoogleUser = true,
+                                            avatarEmoji = "🌐"
+                                        )
+                                        onAccountCreated(account)
+                                    }
+                                )
+                            }
                         }
                         .testTag("google_sign_in_button"),
                     shape = RoundedCornerShape(8.dp),
@@ -177,7 +199,7 @@ fun CreateAccountDialog(
                         GoogleIconGraphic()
                         Spacer(modifier = Modifier.width(12.dp))
                         Text(
-                            text = "Sign in with Google",
+                            text = if (isSigningInGoogle) "Signing in with Google..." else "Sign in with Google",
                             color = Color(0xFF1F2937),
                             fontWeight = FontWeight.Bold,
                             fontSize = 15.sp

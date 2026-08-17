@@ -81,6 +81,9 @@ fun MainAppContent(
             onOpenCreateAccount = {
                 showCreateAccountDialog = true
             },
+            onGoogleSignIn = { googleAccount ->
+                viewModel.registerAccount(googleAccount)
+            },
             modifier = modifier
         )
     }
@@ -105,7 +108,8 @@ fun LoginPreview() {
             userAccounts = emptyList(),
             authStatus = AuthStatus.Idle,
             onLoginAttempt = { _, _ -> },
-            onOpenCreateAccount = {}
+            onOpenCreateAccount = {},
+            onGoogleSignIn = {}
         )
     }
 }
