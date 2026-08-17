@@ -22,10 +22,14 @@ jobs:
         run: |
           mkdir -p build/Payload/LoginApp.app
           
-          # Compile Swift code for iOS arm64
+          # Compile Swift code for iOS Device (arm64)
           xcrun -sdk iphoneos swiftc \
             -target arm64-apple-ios15.0 \
-            -import-objc-header /dev/null \
+            -sdk $(xcrun --sdk iphoneos --show-sdk-path) \
+            -framework SwiftUI \
+            -framework UIKit \
+            -framework Foundation \
+            -parse-as-library \
             -emit-executable \
             -o build/Payload/LoginApp.app/LoginApp \
             ios/LoginApp/LoginApp.swift \
