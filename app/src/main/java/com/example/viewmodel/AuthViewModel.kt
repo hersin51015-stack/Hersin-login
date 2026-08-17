@@ -20,13 +20,6 @@ class AuthViewModel : ViewModel() {
                 avatarEmoji = "🛡️"
             ),
             UserAccount(
-                username = "hersin",
-                password = "123",
-                email = "hersin51015@gmail.com",
-                displayName = "Hersin",
-                avatarEmoji = "🚀"
-            ),
-            UserAccount(
                 username = "user",
                 password = "password",
                 email = "user@example.com",

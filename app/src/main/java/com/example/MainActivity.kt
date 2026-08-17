@@ -87,7 +87,7 @@ fun MainAppContent(
 
     if (showCreateAccountDialog) {
         CreateAccountDialog(
-            defaultGoogleEmail = "hersin51015@gmail.com",
+            defaultGoogleEmail = "user@gmail.com",
             onDismiss = { showCreateAccountDialog = false },
             onAccountCreated = { newAccount ->
                 viewModel.registerAccount(newAccount)

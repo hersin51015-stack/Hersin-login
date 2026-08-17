@@ -47,7 +47,7 @@ struct ContentView: View {
         .animation(.spring(response: 0.45, dampingFraction: 0.75), value: authViewModel.currentUser)
         .sheet(isPresented: $showingCreateAccountSheet) {
             CreateAccountView(
-                defaultEmail: "hersin51015@gmail.com",
+                defaultEmail: "user@gmail.com",
                 onAccountCreated: { newAccount in
                     authViewModel.registerAccount(newAccount)
                     showingCreateAccountSheet = false
@@ -65,7 +65,6 @@ struct ContentView: View {
 class AuthViewModel: ObservableObject {
     @Published var accounts: [UserAccount] = [
         UserAccount(username: "admin", password: "password123", email: "admin@example.com", displayName: "Administrator", avatarEmoji: "🛡️"),
-        UserAccount(username: "hersin", password: "123", email: "hersin51015@gmail.com", displayName: "Hersin", avatarEmoji: "🚀"),
         UserAccount(username: "user", password: "password", email: "user@example.com", displayName: "Member", avatarEmoji: "✨")
     ]
     
@@ -246,10 +245,10 @@ struct LoginView: View {
                 // Google Sign In Button
                 Button(action: {
                     let googleUser = UserAccount(
-                        username: "hersin_google",
+                        username: "google_user",
                         password: "google_oauth_pass",
-                        email: "hersin51015@gmail.com",
-                        displayName: "Hersin (Google)",
+                        email: "user@gmail.com",
+                        displayName: "Google User",
                         avatarEmoji: "🌐",
                         isGoogleUser: true
                     )

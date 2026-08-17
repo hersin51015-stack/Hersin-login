@@ -68,7 +68,7 @@ import com.example.model.UserAccount
 
 @Composable
 fun CreateAccountDialog(
-    defaultGoogleEmail: String = "hersin51015@gmail.com",
+    defaultGoogleEmail: String = "user@gmail.com",
     onDismiss: () -> Unit,
     onAccountCreated: (UserAccount) -> Unit
 ) {
