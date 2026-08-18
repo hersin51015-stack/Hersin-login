@@ -17,10 +17,14 @@ import java.security.SecureRandom
 
 class GoogleAuthManager(private val context: Context) {
 
+    companion object {
+        const val DEFAULT_WEB_CLIENT_ID = "922049258875-qbgi10cpskcmn9vhasenb1s2um3nte63.apps.googleusercontent.com"
+    }
+
     private val credentialManager = CredentialManager.create(context)
 
     suspend fun signInWithGoogle(
-        serverClientId: String? = null,
+        serverClientId: String? = DEFAULT_WEB_CLIENT_ID,
         onSuccess: (UserAccount) -> Unit,
         onError: (String) -> Unit
     ) {
