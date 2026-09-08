@@ -1,0 +1,7 @@
+{
+  "name": "Login App",
+  "description": "A secure login and account creation app with Firebase Authentication (manual email/password and Google Sign-In) and Firestore data persistence.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+
