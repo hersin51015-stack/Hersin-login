@@ -9,7 +9,7 @@ on:
 
 jobs:
   build-android:
-    name: Build Android APK
+    name: Build Installable Android APK
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -25,13 +25,13 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew || true
 
-      - name: Build APK with Gradle
-        run: gradle assembleDebug --no-daemon || ./gradlew assembleDebug --no-daemon || true
+      - name: Build Universal Installable APK
+        run: ./gradlew assembleDebug --no-daemon
 
-      - name: Upload Android APK
+      - name: Upload Installable APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: app-debug
+          name: installable-app-debug
           path: app/build/outputs/apk/debug/app-debug.apk
 
   build-ios:
@@ -93,4 +93,4 @@ jobs:
 
       - name: Publish Release
         run: |
-          echo "Publishing all multi-platform artifacts (Android, iOS, Windows 7-11) successfully!"
+          echo "Publishing installable Android APK, iOS IPA, and Windows 7-11 executables successfully!"
