@@ -71,29 +71,107 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install 32-bit & 64-bit MinGW Compilers
+      - name: Install MinGW 32-bit Compiler
         run: |
           sudo apt-get update
-          sudo apt-get install -y gcc-mingw-w64-i686 gcc-mingw-w64-x86-64
+          sudo apt-get install -y gcc-mingw-w64-i686
 
-      - name: Compile 32-bit Universal Windows 7-11 Executable
+      - name: Compile Interactive Windows 7-11 GUI Application
         run: |
           mkdir -p build/windows
-          cat << 'EOF' > main_windows.c
+          cat << 'EOF' > win_app.c
           #include <windows.h>
 
-          int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
-              MessageBoxA(NULL, 
-                  "Hersin Login Application is running!\n\n"
-                  "Compatible with Windows 7 (32/64-bit), 8, 10, and 11.\n"
-                  "For native Android features, open with BlueStacks or install app-debug.apk directly.", 
-                  "Hersin Login", 
-                  MB_OK | MB_ICONINFORMATION);
+          #define ID_BTN_LOGIN 101
+          #define ID_BTN_GOOGLE 102
+          #define ID_TXT_EMAIL 103
+          #define ID_TXT_PASS 104
+
+          HWND hEmail, hPass, hBtnLogin, hBtnGoogle, hStatus;
+          HBRUSH hBackgroundBrush;
+
+          LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
+              switch(msg) {
+                  case WM_CREATE: {
+                      hBackgroundBrush = CreateSolidBrush(RGB(18, 18, 24)); // Dark neon background
+
+                      CreateWindowW(L"STATIC", L"HERSIN LOGIN", WS_VISIBLE | WS_CHILD | SS_CENTER,
+                          50, 30, 300, 30, hwnd, NULL, NULL, NULL);
+
+                      CreateWindowW(L"STATIC", L"Email or Username:", WS_VISIBLE | WS_CHILD,
+                          50, 85, 300, 20, hwnd, NULL, NULL, NULL);
+
+                      hEmail = CreateWindowExW(WS_EX_CLIENTEDGE, L"EDIT", L"", 
+                          WS_VISIBLE | WS_CHILD | ES_AUTOHSCROLL,
+                          50, 110, 300, 28, hwnd, (HMENU)ID_TXT_EMAIL, NULL, NULL);
+
+                      CreateWindowW(L"STATIC", L"Password:", WS_VISIBLE | WS_CHILD,
+                          50, 155, 300, 20, hwnd, NULL, NULL, NULL);
+
+                      hPass = CreateWindowExW(WS_EX_CLIENTEDGE, L"EDIT", L"", 
+                          WS_VISIBLE | WS_CHILD | ES_PASSWORD | ES_AUTOHSCROLL,
+                          50, 180, 300, 28, hwnd, (HMENU)ID_TXT_PASS, NULL, NULL);
+
+                      hBtnLogin = CreateWindowW(L"BUTTON", L"Log In", 
+                          WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
+                          50, 235, 300, 38, hwnd, (HMENU)ID_BTN_LOGIN, NULL, NULL);
+
+                      hBtnGoogle = CreateWindowW(L"BUTTON", L"Sign in with Google", 
+                          WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
+                          50, 290, 300, 38, hwnd, (HMENU)ID_BTN_GOOGLE, NULL, NULL);
+
+                      hStatus = CreateWindowW(L"STATIC", L"", WS_VISIBLE | WS_CHILD | SS_CENTER,
+                          30, 350, 340, 40, hwnd, NULL, NULL, NULL);
+                      break;
+                  }
+                  case WM_COMMAND: {
+                      if (LOWORD(wParam) == ID_BTN_LOGIN) {
+                          SetWindowTextW(hStatus, L"Logging in to Hersin App...");
+                          MessageBoxW(hwnd, L"Logged in successfully to Hersin Login!", L"Authentication Success", MB_OK | MB_ICONINFORMATION);
+                      } else if (LOWORD(wParam) == ID_BTN_GOOGLE) {
+                          SetWindowTextW(hStatus, L"Connecting with Google Account...");
+                          ShellExecuteA(NULL, "open", "https://accounts.google.com", NULL, NULL, SW_SHOWNORMAL);
+                      }
+                      break;
+                  }
+                  case WM_DESTROY: {
+                      DeleteObject(hBackgroundBrush);
+                      PostQuitMessage(0);
+                      break;
+                  }
+                  default:
+                      return DefWindowProc(hwnd, msg, wParam, lParam);
+              }
               return 0;
           }
+
+          int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
+              WNDCLASSW wc = {0};
+              wc.lpfnWndProc = WndProc;
+              wc.hInstance = hInstance;
+              wc.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
+              wc.lpszClassName = L"HersinLoginWindow";
+              wc.hCursor = LoadCursor(NULL, IDC_ARROW);
+
+              if (!RegisterClassW(&wc)) return 0;
+
+              HWND hwnd = CreateWindowW(wc.lpszClassName, L"Hersin Login - Windows 7/8/10/11",
+                  WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX | WS_VISIBLE,
+                  CW_USEDEFAULT, CW_USEDEFAULT, 420, 460,
+                  NULL, NULL, hInstance, NULL);
+
+              ShowWindow(hwnd, nCmdShow);
+              UpdateWindow(hwnd);
+
+              MSG msg;
+              while (GetMessage(&msg, NULL, 0, 0)) {
+                  TranslateMessage(&msg);
+                  DispatchMessage(&msg);
+              }
+              return (int)msg.wParam;
+          }
           EOF
-          # Compile as 32-bit (i686) with Windows 6.1 (Win 7) subsystem target
-          i686-w64-mingw32-gcc -O2 -mwindows -Wl,--subsystem,windows:6.1 main_windows.c -o build/windows/HersinLogin.exe
+          i686-w64-mingw32-gcc -O2 -mwindows -Wl,--subsystem,windows:6.1 win_app.c -o build/windows/HersinLogin.exe
 
       - name: Upload Windows EXE Artifact
         uses: actions/upload-artifact@v4
