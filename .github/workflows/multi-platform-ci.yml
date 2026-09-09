@@ -71,12 +71,12 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install MinGW (Instant Real Windows Executable Compiler)
+      - name: Install 32-bit & 64-bit MinGW Compilers
         run: |
           sudo apt-get update
-          sudo apt-get install -y gcc-mingw-w64-x86-64
+          sudo apt-get install -y gcc-mingw-w64-i686 gcc-mingw-w64-x86-64
 
-      - name: Build Genuine Windows 7-11 Native Executable
+      - name: Compile 32-bit Universal Windows 7-11 Executable
         run: |
           mkdir -p build/windows
           cat << 'EOF' > main_windows.c
@@ -85,13 +85,15 @@ jobs:
           int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
               MessageBoxA(NULL, 
                   "Hersin Login Application is running!\n\n"
+                  "Compatible with Windows 7 (32/64-bit), 8, 10, and 11.\n"
                   "For native Android features, open with BlueStacks or install app-debug.apk directly.", 
-                  "Hersin Login - Windows 7/8/10/11", 
+                  "Hersin Login", 
                   MB_OK | MB_ICONINFORMATION);
               return 0;
           }
           EOF
-          x86_64-w64-mingw32-gcc -O2 -mwindows main_windows.c -o build/windows/HersinLogin.exe
+          # Compile as 32-bit (i686) with Windows 6.1 (Win 7) subsystem target
+          i686-w64-mingw32-gcc -O2 -mwindows -Wl,--subsystem,windows:6.1 main_windows.c -o build/windows/HersinLogin.exe
 
       - name: Upload Windows EXE Artifact
         uses: actions/upload-artifact@v4
