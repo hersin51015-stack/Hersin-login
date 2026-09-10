@@ -175,8 +175,86 @@ jobs:
           EOF
           i686-w64-mingw32-gcc -O2 -mwindows -Wl,--subsystem,windows:6.1 win_app.c -o build/windows/HersinLogin.exe
 
+      - name: Build Windows Installer Package
+        run: |
+          mkdir -p build/installer
+          cp build/windows/HersinLogin.exe build/installer/
+          cat << 'EOF' > build/installer/install.bat
+          @echo off
+          title Hersin Login App Installer
+          echo Installing Hersin Login Application...
+          set "TARGET=%LOCALAPPDATA%\HersinApp"
+          if not defined LOCALAPPDATA set "TARGET=%USERPROFILE%\AppData\Local\HersinApp"
+          if not exist "%TARGET%" mkdir "%TARGET%"
+          copy /Y "%~dp0HersinLogin.exe" "%TARGET%\HersinLogin.exe" >nul
+          set "VB=%TEMP%\lnk_%RANDOM%.vbs"
+          (
+          echo Set oWS = WScript.CreateObject("WScript.Shell"^)
+          echo sLink = oWS.SpecialFolders("Desktop"^) ^& "\Hersin Login.lnk"
+          echo Set oL = oWS.CreateShortcut(sLink^)
+          echo oL.TargetPath = "%TARGET%\HersinLogin.exe"
+          echo oL.WorkingDirectory = "%TARGET%"
+          echo oL.Save
+          ) > "%VB%"
+          cscript //nologo "%VB%"
+          del "%VB%" 2>nul
+          echo.
+          echo [SUCCESS] Installed to %TARGET%
+          echo Desktop shortcut created!
+          start "" "%TARGET%\HersinLogin.exe"
+          pause
+          EOF
+          cd build/installer && zip -r ../../HersinLogin_Windows_Installer.zip . && cd ../..
+
       - name: Upload Windows EXE Artifact
         uses: actions/upload-artifact@v4
         with:
           name: windows-exe-win7-11
           path: build/windows/HersinLogin.exe
+
+      - name: Upload Windows Installer Zip
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-installer-zip
+          path: HersinLogin_Windows_Installer.zip
+
+  create-release:
+    name: Publish Release with Installers
+    needs: [build-android, build-windows]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download Android Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: app-debug
+          path: release-assets/
+
+      - name: Download Windows EXE Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: windows-exe-win7-11
+          path: release-assets/
+
+      - name: Download Windows Installer Zip
+        uses: actions/download-artifact@v4
+        with:
+          name: windows-installer-zip
+          path: release-assets/
+
+      - name: Create or Update GitHub Release
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/') || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+        with:
+          tag_name: v1.0.0
+          name: "Hersin Login v1.0.0 Installers (Android & Windows 7-11)"
+          draft: false
+          prerelease: false
+          files: |
+            release-assets/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
