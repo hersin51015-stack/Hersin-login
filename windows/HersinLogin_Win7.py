@@ -13,8 +13,8 @@ def do_login():
     messagebox.showinfo("Success", f"Welcome back, {email}!\nAuthentication successful.")
 
 def do_google():
-    client_id = "922049258875-qbgi10cpskcmn9vhasenb1s2um3nte63.apps.googleusercontent.com"
-    auth_url = f"https://accounts.google.com/o/oauth2/v2/auth?client_id={client_id}&response_type=token&redirect_uri=http://localhost:5000&scope=email%20profile%20openid"
+    client_id = "1013253188592-jtj3k8n2cepff24fqg9knk6q920p5k9t.apps.googleusercontent.com"
+    auth_url = f"https://accounts.google.com/o/oauth2/v2/auth?client_id={client_id}&response_type=code&redirect_uri=http://127.0.0.1&scope=email%20profile%20openid"
     webbrowser.open(auth_url)
 
 root = tk.Tk()

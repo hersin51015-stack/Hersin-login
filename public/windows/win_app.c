@@ -69,7 +69,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             } else if (LOWORD(wParam) == ID_BTN_GOOGLE) {
                 SetWindowTextW(hStatus, L"Opening Google Sign-In...");
                 ShellExecuteA(NULL, "open", 
-                    "https://accounts.google.com/o/oauth2/v2/auth?client_id=922049258875-qbgi10cpskcmn9vhasenb1s2um3nte63.apps.googleusercontent.com&response_type=token&redirect_uri=http://localhost:5000&scope=email%20profile%20openid", 
+                    "https://accounts.google.com/o/oauth2/v2/auth?client_id=1013253188592-jtj3k8n2cepff24fqg9knk6q920p5k9t.apps.googleusercontent.com&response_type=code&redirect_uri=http://127.0.0.1&scope=email%20profile%20openid", 
                     NULL, NULL, SW_SHOWNORMAL);
             }
             break;
