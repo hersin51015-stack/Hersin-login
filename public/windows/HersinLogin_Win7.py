@@ -14,7 +14,7 @@ def do_login():
 
 def do_google():
     client_id = "922049258875-qbgi10cpskcmn9vhasenb1s2um3nte63.apps.googleusercontent.com"
-    auth_url = f"https://accounts.google.com/o/oauth2/v2/auth?client_id={client_id}&response_type=token&redirect_uri=http://localhost&scope=email%20profile%20openid"
+    auth_url = f"https://accounts.google.com/o/oauth2/v2/auth?client_id={client_id}&response_type=token&redirect_uri=http://localhost:5000&scope=email%20profile%20openid"
     webbrowser.open(auth_url)
 
 root = tk.Tk()
